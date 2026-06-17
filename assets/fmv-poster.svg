@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720">
+  <rect width="1280" height="720" fill="#141211"/>
+  <rect x="72" y="64" width="1136" height="592" fill="#201c19" stroke="#f3efe6" stroke-opacity=".18"/>
+  <path d="M72 486c160-34 272-88 430-68 188 23 286 121 706 34v204H72z" fill="#2d1614"/>
+  <text x="112" y="176" fill="#62c8c8" font-family="monospace" font-size="24">FINAL MOOD VIDEO</text>
+  <text x="112" y="350" fill="#f3efe6" font-family="Arial Black, Arial" font-size="98">FMV</text>
+  <text x="112" y="410" fill="#d2e65d" font-family="monospace" font-size="26">LINKED TO FACEBOOK VIDEO</text>
+</svg>

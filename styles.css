@@ -305,6 +305,7 @@ h3 {
 }
 
 .intro-video-card,
+.intro-gallery a,
 .intro-gallery div {
   position: relative;
   overflow: hidden;
@@ -343,6 +344,7 @@ h3 {
   transition: transform 0.35s ease, filter 0.35s ease;
 }
 
+.intro-gallery a:hover img,
 .intro-gallery div:hover img {
   filter: brightness(1.1);
   transform: scale(1.035);

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900">
+  <rect width="1600" height="900" fill="#11100f"/>
+  <path d="M0 650h1600v250H0z" fill="#1d1a17"/>
+  <path d="M1190 0h410v900h-410z" fill="#2a1614"/>
+  <g fill="none" stroke="#f3efe6" stroke-opacity=".16">
+    <path d="M120 130h860v590H120z"/>
+    <path d="M200 210h700v430H200z"/>
+    <path d="M0 450h1600"/>
+  </g>
+  <text x="105" y="405" fill="#f3efe6" font-family="Arial Black, Arial" font-size="152">DISSTOPIA</text>
+  <text x="112" y="470" fill="#62c8c8" font-family="monospace" font-size="32">INSERT assets/intro-teaser.mp4</text>
+  <text x="1110" y="800" fill="#d2e65d" font-family="monospace" font-size="28">LOVE SIGNAL SYSTEM</text>
+</svg>

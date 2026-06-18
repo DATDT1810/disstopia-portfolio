@@ -1,28 +1,103 @@
-const GEMINI_MODEL = "gemini-3.5-flash";
-const GEMINI_API_KEY = window.DISSTOPIA_GEMINI_API_KEY || "";
-const GEMINI_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
-
 const chatLog = document.querySelector("#chatLog");
-const chatForm = document.querySelector("#chatForm");
-const chatInput = document.querySelector("#chatInput");
-const promptButtons = document.querySelectorAll("[data-prompt]");
-const videoTiles = document.querySelectorAll(".video-tile video");
-const chatHistory = [];
+const quickReplies = document.querySelector("#quickReplies");
+const mediaVideos = document.querySelectorAll("video");
+const orbitNext = document.querySelector("#orbitNext");
+const orbitTrackNumber = document.querySelector("#orbitTrackNumber");
+const orbitTrackTitle = document.querySelector("#orbitTrackTitle");
+const orbitCards = document.querySelectorAll(".orbit-card");
 
-const systemInstruction = `
-Bạn là DISSTOPIA Love Signal, chatbot tương tác trong portfolio dự án DISSTOPIA.
+const orbitTracks = [
+  "Giữa một vạn người",
+  "Căn phòng khiêu vũ",
+  "Tình yêu có nghĩa là gì?",
+  "Nếu lúc đó",
+  "Thế giới không anh",
+  "Becoming"
+];
 
-Nhiệm vụ:
-- Trò chuyện với người xem về băn khoăn tình cảm, tín hiệu mập mờ, nhắn tin nóng lạnh, overthinking và cảm giác cần được xác nhận.
-- Trả lời bằng tiếng Việt tự nhiên, mềm, có chiều sâu, hơi bí ẩn đúng mood DISSTOPIA nhưng vẫn dễ hiểu.
-- Không trả lời cụt. Mỗi câu trả lời nên có 4 đến 6 câu, khoảng 90 đến 150 từ.
-- Không khẳng định chắc chắn người kia yêu hay không yêu.
-- Không chẩn đoán sức khỏe tinh thần.
-- Luôn giúp người xem nhìn lại pattern hành động, cảm xúc của chính họ, và đặt thêm 1 câu hỏi cụ thể ở cuối.
+let orbitTrackIndex = 0;
 
-Nếu người xem nói họ liên tục kiểm tra dấu hiệu, hãy nhấn mạnh rằng việc tìm dấu hiệu có thể là một dạng tự bảo vệ, nhưng cũng có thể biến thành vòng lặp làm họ mệt hơn.
-Nếu người xem hỏi người kia có yêu mình không, hãy hướng họ quan sát sự nhất quán, chủ động, tôn trọng ranh giới và hành động lặp lại theo thời gian.
-`;
+const conversation = {
+  root: {
+    options: [
+      { label: "Không biết họ có yêu mình?", next: "uncertain" },
+      { label: "Nóng lạnh thất thường", next: "mixed" },
+      { label: "Không ngừng kiểm tra dấu hiệu", next: "checking" }
+    ]
+  },
+  uncertain: {
+    user: "Tôi không biết họ có yêu mình hay không.",
+    reply: "Cảm giác không biết mình có được yêu hay không thật sự rất mệt. Một khoảnh khắc có thể đánh lừa mình, nhưng cách họ đối xử với bạn lặp đi lặp lại thì khó giả hơn. Điều nào dưới đây giống họ nhất?",
+    options: [
+      { label: "Họ chủ động và giữ lời", next: "consistent" },
+      { label: "Chỉ xuất hiện khi họ cần", next: "convenient" },
+      { label: "Tôi vẫn không nhìn ra", next: "unclear" }
+    ]
+  },
+  mixed: {
+    user: "Người đó lúc gần lúc xa, khi quan tâm khi im lặng.",
+    reply: "Có lẽ điều làm bạn mệt không chỉ là sự im lặng, mà là việc cứ phải đoán xem lần này họ có quay lại không. Khi họ xuất hiện trở lại, họ thường làm gì?",
+    options: [
+      { label: "Họ giải thích rõ ràng", next: "explains" },
+      { label: "Họ cư xử như chưa có gì", next: "ignores" },
+      { label: "Tôi luôn là người hỏi trước", next: "chasing" }
+    ]
+  },
+  checking: {
+    user: "Tôi cứ kiểm tra mọi dấu hiệu của họ.",
+    reply: "Mình hiểu vì sao bạn làm vậy: kiểm tra giúp bạn cảm thấy như mình vẫn còn nắm được điều gì đó. Nhưng sau mỗi lần kiểm tra, bạn thấy nhẹ lòng hơn hay lại có thêm một câu hỏi mới?",
+    options: [
+      { label: "Tôi chỉ càng mệt hơn", next: "exhausted" },
+      { label: "Tôi sợ mình bỏ sót điều gì", next: "missing" },
+      { label: "Tôi thấy yên tâm tạm thời", next: "temporary" }
+    ]
+  },
+  consistent: {
+    user: "Họ thường chủ động và giữ lời.",
+    reply: "Vậy là giữa hai người đang có một nền tảng khá đáng tin. Bạn chưa cần vội đặt tên cho mối quan hệ; hãy để sự chủ động, giữ lời và tôn trọng của họ tiếp tục trả lời thay cho những lời hứa.",
+    options: [{ label: "Đọc một tín hiệu khác", next: "root" }]
+  },
+  convenient: {
+    user: "Họ thường chỉ xuất hiện khi họ cần.",
+    reply: "Nghe như bạn luôn phải ở đó khi họ cần, còn nhu cầu của bạn lại bị đặt sau cùng. Có lẽ câu hỏi quan trọng lúc này không chỉ là “họ có yêu mình không”, mà là “cách họ đối xử có đủ để mình cảm thấy được yêu không”.",
+    options: [{ label: "Đọc một tín hiệu khác", next: "root" }]
+  },
+  unclear: {
+    user: "Tôi vẫn không nhìn ra pattern nào.",
+    reply: "Không nhìn ra cũng không có nghĩa là bạn thiếu tinh tế. Đôi khi chính sự mơ hồ kéo dài đã là câu trả lời: một mối quan hệ an toàn thường không bắt bạn phải giải mã mọi thứ một mình.",
+    options: [{ label: "Đọc một tín hiệu khác", next: "root" }]
+  },
+  explains: {
+    user: "Họ có giải thích rõ khi biến mất.",
+    reply: "Việc họ giải thích cho thấy họ có để tâm đến cảm giác của bạn. Nhưng hãy nhìn thêm xem sau lời giải thích, họ có thay đổi cách cư xử để bạn bớt bất an không, vì lời nói chỉ thật sự có nghĩa khi đi cùng hành động.",
+    options: [{ label: "Đọc một tín hiệu khác", next: "root" }]
+  },
+  ignores: {
+    user: "Họ quay lại như chưa từng có chuyện gì.",
+    reply: "Việc họ bình thản quay lại không có nghĩa là khoảng thời gian bạn chờ đợi chưa từng tồn tại. Bạn hoàn toàn có quyền nói rằng sự im lặng ấy đã ảnh hưởng đến mình và xem họ có thật sự lắng nghe không.",
+    options: [{ label: "Đọc một tín hiệu khác", next: "root" }]
+  },
+  chasing: {
+    user: "Tôi luôn là người phải hỏi trước.",
+    reply: "Bạn đã cố gắng khá nhiều để giữ kết nối này rồi. Có lẽ bạn có thể lùi lại một chút, không phải để thử lòng, mà để xem mối quan hệ có thể tự đứng vững khi bạn không phải là người luôn kéo nó về phía mình hay không.",
+    options: [{ label: "Đọc một tín hiệu khác", next: "root" }]
+  },
+  exhausted: {
+    user: "Việc kiểm tra chỉ khiến tôi mệt hơn.",
+    reply: "Vậy có lẽ cơ thể bạn đang nói điều mà tâm trí chưa muốn thừa nhận: vòng lặp này không còn bảo vệ bạn nữa. Bạn có thể bắt đầu bằng một khoảng nghỉ nhỏ, không kiểm tra thêm, và để sự bình yên của mình được ưu tiên trước.",
+    options: [{ label: "Đọc một tín hiệu khác", next: "root" }]
+  },
+  missing: {
+    user: "Tôi sợ mình sẽ bỏ sót một dấu hiệu quan trọng.",
+    reply: "Nếu một tín hiệu thật sự quan trọng, nó sẽ không chỉ xuất hiện đúng một lần rồi bắt bạn phải săn tìm. Một người muốn ở bên bạn thường sẽ khiến điều đó đủ rõ bằng những hành động lặp lại.",
+    options: [{ label: "Đọc một tín hiệu khác", next: "root" }]
+  },
+  temporary: {
+    user: "Kiểm tra khiến tôi yên tâm, nhưng chỉ trong chốc lát.",
+    reply: "Sự nhẹ nhõm ngắn ngủi đó dễ khiến mình quay lại kiểm tra thêm lần nữa, rồi lại thêm lần nữa. Thử đặt một giới hạn thật nhỏ hôm nay và quan sát cảm xúc của bạn, thay vì tiếp tục tìm câu trả lời trên màn hình.",
+    options: [{ label: "Đọc một tín hiệu khác", next: "root" }]
+  }
+};
 
 function addMessage(text, type) {
   const node = document.createElement("div");
@@ -30,165 +105,56 @@ function addMessage(text, type) {
   node.textContent = text;
   chatLog.appendChild(node);
   chatLog.scrollTop = chatLog.scrollHeight;
-  return node;
 }
 
-function setTyping(active) {
-  const existing = document.querySelector("[data-typing='true']");
-  if (existing) existing.remove();
-  if (!active) return null;
+function renderOptions(options) {
+  quickReplies.replaceChildren();
 
-  const node = addMessage("DISSTOPIA đang phân tích tín hiệu...", "system");
-  node.dataset.typing = "true";
-  return node;
-}
-
-function getApiKey() {
-  return GEMINI_API_KEY.trim();
-}
-
-function toGeminiContents() {
-  return chatHistory.map((message) => ({
-    role: message.role,
-    parts: [{ text: message.text }]
-  }));
-}
-
-function extractGeminiText(data) {
-  const parts = data?.candidates?.[0]?.content?.parts || [];
-  return parts.map((part) => part.text || "").join("").trim();
-}
-
-function isWeakAnswer(answer) {
-  const trimmed = answer.trim();
-  const sentenceCount = (trimmed.match(/[.!?。！？]/g) || []).length;
-  return trimmed.length < 120 || sentenceCount < 2;
-}
-
-function getFallbackReply(input) {
-  const normalized = input.toLowerCase();
-
-  if (normalized.includes("yêu") || normalized.includes("thích") || normalized.includes("love")) {
-    return "Tín hiệu tình cảm hiếm khi rõ ngay từ một khoảnh khắc. Thay vì hỏi một hành động đơn lẻ có nghĩa là gì, bạn hãy nhìn vào sự nhất quán: họ có chủ động không, có giữ lời không, có quan tâm cả khi không cần gây ấn tượng không? Nếu câu trả lời cứ lúc có lúc không, cảm giác bất an của bạn cũng là một dữ kiện đáng lắng nghe. DISSTOPIA không thể kết luận thay bạn rằng họ yêu hay không, nhưng có thể nhắc bạn rằng tình yêu là pattern, không phải một tín hiệu lẻ. Bạn thấy họ nhất quán nhất ở điểm nào, và thiếu nhất quán nhất ở điểm nào?";
-  }
-
-  if (normalized.includes("nhắn") || normalized.includes("seen") || normalized.includes("im lặng") || normalized.includes("nóng lạnh")) {
-    return "Một người lúc gần lúc xa rất dễ khiến bạn tự đi tìm thêm bằng chứng. Khi họ nhắn, bạn thấy có hy vọng; khi họ im lặng, toàn bộ hệ thống trong bạn lại bắt đầu quét lỗi. Nhưng một mối quan hệ lành mạnh không nên chỉ tồn tại nhờ vài đoạn tin nhắn làm bạn đoán già đoán non. Hãy thử quan sát trong vài ngày: họ có quay lại bằng hành động rõ ràng, hay chỉ xuất hiện đủ để bạn tiếp tục chờ? Khoảnh khắc nào khiến bạn thấy mình bình yên nhất khi ở cạnh họ?";
-  }
-
-  if (normalized.includes("dấu hiệu") || normalized.includes("kiểm tra") || normalized.includes("ám ảnh") || normalized.includes("theo dõi")) {
-    return "Việc liên tục tìm kiếm dấu hiệu thường bắt đầu như một cách tự bảo vệ: bạn muốn chắc rằng mình không bị bỏ rơi, không hiểu sai, không yêu một mình. Nhưng nếu càng kiểm tra bạn càng mệt, thì có thể vấn đề không chỉ nằm ở họ, mà còn nằm ở vòng lặp mà mối quan hệ này đang kích hoạt trong bạn. Một tín hiệu thật nên làm bạn thấy rõ hơn, không phải khiến bạn phải giải mã mãi. Hãy tạm nhìn vào pattern lớn: họ có khiến bạn thấy được chọn một cách ổn định không? Bạn đang tìm dấu hiệu vì họ mập mờ, hay vì bạn đã mất cảm giác an toàn?";
-  }
-
-  return "Tín hiệu bạn đưa ra vẫn còn hơi nhiễu, nhưng chính sự nhiễu đó cũng là một phần của câu chuyện. Khi một điều làm mình băn khoăn quá lâu, nó thường không chỉ là câu hỏi về người kia, mà còn là câu hỏi về cảm giác an toàn của mình trong mối quan hệ đó. Bạn có thể thử tách ra ba lớp: họ đã làm gì, việc đó lặp lại bao nhiêu lần, và cơ thể bạn cảm thấy thế nào sau mỗi lần như vậy. DISSTOPIA sẽ không kết luận thay bạn, nhưng sẽ giúp bạn đọc pattern rõ hơn. Bạn kể một tình huống cụ thể vừa xảy ra được không?";
-}
-
-function isQuotaError(error) {
-  const message = error.message.toLowerCase();
-  return message.includes("quota") || message.includes("rate") || message.includes("429");
-}
-
-function isBusyModelError(error) {
-  const message = error.message.toLowerCase();
-  return message.includes("high demand") || message.includes("unavailable") || message.includes("503");
-}
-
-async function askGemini(userText) {
-  const apiKey = getApiKey();
-  if (!apiKey || apiKey === "PASTE_YOUR_GEMINI_API_KEY_HERE") {
-    return getFallbackReply(userText);
-  }
-
-  chatHistory.push({ role: "user", text: userText });
-
-  const response = await fetch(GEMINI_ENDPOINT, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-goog-api-key": apiKey
-    },
-    body: JSON.stringify({
-      systemInstruction: {
-        parts: [{ text: systemInstruction }]
-      },
-      contents: toGeminiContents(),
-      generationConfig: {
-        temperature: 0.78,
-        topP: 0.9,
-        maxOutputTokens: 520
-      }
-    })
+  options.forEach((option) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = option.label;
+    button.addEventListener("click", () => selectChoice(option.next));
+    quickReplies.appendChild(button);
   });
-
-  if (!response.ok) {
-    const details = await response.json().catch(() => null);
-    const message = details?.error?.message || `Gemini API returned ${response.status}.`;
-    throw new Error(message);
-  }
-
-  const data = await response.json();
-  const answer = extractGeminiText(data);
-  const finalAnswer = isWeakAnswer(answer) ? getFallbackReply(userText) : answer;
-  chatHistory.push({ role: "model", text: finalAnswer });
-  return finalAnswer;
 }
 
-async function submitPrompt(value) {
-  const text = value.trim();
-  if (!text) return;
-
-  addMessage(text, "viewer");
-  chatInput.value = "";
-  setTyping(true);
-
-  try {
-    const answer = await askGemini(text);
-    setTyping(false);
-    addMessage(answer, "system");
-  } catch (error) {
-    chatHistory.pop();
-    setTyping(false);
-
-    if (isQuotaError(error)) {
-      addMessage(`Gemini đang hết quota nên DISSTOPIA chuyển sang chế độ dự phòng. ${getFallbackReply(text)}`, "system");
-      return;
-    }
-
-    if (isBusyModelError(error)) {
-      addMessage(`Gemini 3.5 Flash đang quá tải tạm thời nên DISSTOPIA chuyển sang chế độ dự phòng. ${getFallbackReply(text)}`, "system");
-      return;
-    }
-
-    addMessage(`Gemini chưa phản hồi được. ${getFallbackReply(text)}`, "system");
+function selectChoice(key) {
+  if (key === "root") {
+    chatLog.replaceChildren();
+    addMessage("Bạn muốn Disstopkl cùng đọc tín hiệu nào?", "system");
+    renderOptions(conversation.root.options);
+    return;
   }
+
+  const step = conversation[key];
+  if (!step) return;
+
+  addMessage(step.user, "viewer");
+  quickReplies.replaceChildren();
+
+  const typing = document.createElement("div");
+  typing.className = "message system typing-message";
+  typing.textContent = "Disstopkl đang lắng nghe...";
+  chatLog.appendChild(typing);
+  chatLog.scrollTop = chatLog.scrollHeight;
+
+  window.setTimeout(() => {
+    typing.remove();
+    addMessage(step.reply, "system");
+    renderOptions(step.options);
+  }, 520);
 }
 
-chatForm.addEventListener("submit", (event) => {
-  event.preventDefault();
-  submitPrompt(chatInput.value);
-});
-
-promptButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    submitPrompt(button.dataset.prompt || "");
-  });
-});
-
-videoTiles.forEach((video) => {
-  video.addEventListener("mouseenter", () => video.play().catch(() => {}));
-  video.addEventListener("mouseleave", () => {
-    video.pause();
-    video.currentTime = 0;
-  });
-});
+renderOptions(conversation.root.options);
 
 const observer = new IntersectionObserver(
   (entries) => {
     entries.forEach((entry) => {
       const video = entry.target;
-      if (entry.isIntersecting) {
+      if (entry.isIntersecting && video.muted && video.autoplay) {
         video.play().catch(() => {});
-      } else {
+      } else if (!entry.isIntersecting) {
         video.pause();
       }
     });
@@ -196,4 +162,20 @@ const observer = new IntersectionObserver(
   { threshold: 0.55 }
 );
 
-videoTiles.forEach((video) => observer.observe(video));
+mediaVideos.forEach((video) => observer.observe(video));
+
+function updateOrbitTrack() {
+  orbitTrackNumber.textContent = String(orbitTrackIndex + 1).padStart(2, "0");
+  orbitTrackTitle.textContent = orbitTracks[orbitTrackIndex];
+
+  orbitCards.forEach((card, index) => {
+    card.classList.toggle("is-active", index === orbitTrackIndex);
+  });
+}
+
+if (orbitNext && orbitTrackNumber && orbitTrackTitle && orbitCards.length) {
+  orbitNext.addEventListener("click", () => {
+    orbitTrackIndex = (orbitTrackIndex + 1) % orbitTracks.length;
+    updateOrbitTrack();
+  });
+}

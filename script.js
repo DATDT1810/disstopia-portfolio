@@ -1,4 +1,6 @@
 const chatLog = document.querySelector("#chatLog");
+const chatForm = document.querySelector("#chatForm");
+const chatInput = document.querySelector("#chatInput");
 const quickReplies = document.querySelector("#quickReplies");
 const mediaVideos = document.querySelectorAll("video");
 const orbitNext = document.querySelector("#orbitNext");
@@ -16,6 +18,48 @@ const orbitTracks = [
 ];
 
 let orbitTrackIndex = 0;
+
+const geminiKey =
+  window.DISSTOPIA_GEMINI_API_KEY ||
+  window.DISSTOPIA_CONFIG?.GeminiAPIKey ||
+  "";
+const geminiModel =
+  window.DISSTOPIA_GEMINI_MODEL ||
+  window.DISSTOPIA_CONFIG?.GeminiModel ||
+  "gemini-2.0-flash";
+
+const fallbackReplies = [
+  {
+    keywords: ["hi", "hello", "chào", "alo", "hey"],
+    reply:
+      "Chào bạn. Disstopkl ở đây để cùng bạn đọc một tín hiệu tình cảm đang làm bạn phân vân. Bạn có thể kể ngắn tình huống, hoặc chọn một gợi ý bên dưới để bắt đầu."
+  },
+  {
+    keywords: ["yêu", "thích", "crush", "có tình cảm", "có yêu"],
+    reply:
+      "Khi mình không chắc người kia có tình cảm hay không, điều đáng nhìn nhất không phải một khoảnh khắc riêng lẻ mà là sự nhất quán. Họ có chủ động không, có giữ lời không, và có quan tâm đến cảm giác của bạn ngay cả khi không cần gây ấn tượng không?"
+  },
+  {
+    keywords: ["seen", "rep", "reply", "nhắn", "tin nhắn", "im lặng", "biến mất"],
+    reply:
+      "Sự im lặng dễ làm mình tự lấp đầy khoảng trống bằng rất nhiều giả thuyết. Nhưng một kết nối khiến bạn an toàn thường không bắt bạn phải đoán quá lâu. Bạn có thể nhìn xem họ có quay lại bằng một lời giải thích rõ ràng và hành động ổn định hơn không."
+  },
+  {
+    keywords: ["nóng lạnh", "lúc gần lúc xa", "mập mờ", "không rõ", "khó hiểu"],
+    reply:
+      "Một người lúc gần lúc xa có thể khiến bạn mắc kẹt trong vòng lặp chờ tín hiệu tiếp theo. Thử hỏi bản thân: sau khi ở cạnh họ, bạn thấy bình yên hơn hay phải tiếp tục tự chứng minh rằng mình được chọn?"
+  },
+  {
+    keywords: ["kiểm tra", "theo dõi", "stalk", "dấu hiệu", "ám ảnh"],
+    reply:
+      "Việc liên tục kiểm tra thường không làm mình chắc chắn hơn, chỉ làm câu hỏi kéo dài hơn. Nếu sau mỗi lần xem thêm bạn lại thấy mệt hơn, có lẽ điều cần chăm sóc trước không phải là câu trả lời của họ, mà là cảm giác an toàn của bạn."
+  },
+  {
+    keywords: ["buồn", "mệt", "đau", "khóc", "tổn thương", "bất an"],
+    reply:
+      "Cảm giác mệt và bất an của bạn là dữ liệu quan trọng. Một mối quan hệ không cần hoàn hảo, nhưng nó nên có đủ sự rõ ràng để bạn không phải tự nghi ngờ giá trị của mình mỗi ngày."
+  }
+];
 
 const conversation = {
   root: {
@@ -119,6 +163,84 @@ function renderOptions(options) {
   });
 }
 
+function getFallbackReply(message) {
+  const normalized = message.toLowerCase();
+  const matched = fallbackReplies.find((item) =>
+    item.keywords.some((keyword) => normalized.includes(keyword))
+  );
+
+  if (matched) return matched.reply;
+
+  return "Mình nghe thấy trong câu hỏi của bạn có một sự phân vân chưa được gọi tên. Thử tách tình huống thành ba phần: họ đã làm gì, việc đó lặp lại bao nhiêu lần, và sau mỗi lần như vậy bạn cảm thấy an toàn hơn hay bất an hơn. Từ pattern đó, câu trả lời thường rõ hơn một lời đoán.";
+}
+
+async function getGeminiReply(message) {
+  if (!geminiKey || geminiKey.includes("PASTE_")) {
+    throw new Error("Missing AI key");
+  }
+
+  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${geminiKey}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      systemInstruction: {
+        parts: [
+          {
+            text:
+              "Bạn là Disstopkl, một chatbot thấu cảm trong portfolio DISSTOPIA. Trả lời bằng tiếng Việt, 3-5 câu, dịu nhưng rõ. Không chẩn đoán, không khẳng định người kia yêu hay không yêu. Không nhắc API, Gemini, quota, model, lỗi hệ thống hay cấu hình kỹ thuật."
+          }
+        ]
+      },
+      contents: [
+        {
+          role: "user",
+          parts: [{ text: message }]
+        }
+      ],
+      generationConfig: {
+        temperature: 0.75,
+        maxOutputTokens: 220
+      }
+    })
+  });
+
+  if (!response.ok) {
+    throw new Error("AI request failed");
+  }
+
+  const data = await response.json();
+  const text = data.candidates?.[0]?.content?.parts?.map((part) => part.text).join(" ").trim();
+
+  if (!text) {
+    throw new Error("Empty AI reply");
+  }
+
+  return text;
+}
+
+async function handleFreeformMessage(message) {
+  addMessage(message, "viewer");
+  quickReplies.replaceChildren();
+
+  const typing = document.createElement("div");
+  typing.className = "message system typing-message";
+  typing.textContent = "Disstopkl đang lắng nghe...";
+  chatLog.appendChild(typing);
+  chatLog.scrollTop = chatLog.scrollHeight;
+
+  try {
+    const reply = await getGeminiReply(message);
+    typing.remove();
+    addMessage(reply, "system");
+  } catch {
+    await new Promise((resolve) => window.setTimeout(resolve, 360));
+    typing.remove();
+    addMessage(getFallbackReply(message), "system");
+  } finally {
+    renderOptions(conversation.root.options);
+  }
+}
+
 function selectChoice(key) {
   if (key === "root") {
     chatLog.replaceChildren();
@@ -147,6 +269,18 @@ function selectChoice(key) {
 }
 
 renderOptions(conversation.root.options);
+
+if (chatForm && chatInput) {
+  chatForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    const message = chatInput.value.trim();
+    if (!message) return;
+
+    chatInput.value = "";
+    handleFreeformMessage(message);
+  });
+}
 
 const observer = new IntersectionObserver(
   (entries) => {

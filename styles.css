@@ -935,12 +935,36 @@ h3 {
   font-size: 12px;
 }
 
+.chat-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  padding: 14px;
+  border-top: 1px solid var(--line);
+}
+
+.chat-form input {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 14px;
+  color: var(--ink);
+  background: #11100f;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  outline: 0;
+  font: 500 15px/1.2 "Archivo", Arial, sans-serif;
+}
+
+.chat-form input:focus {
+  border-color: var(--cyan);
+}
+
 .prompt-chips {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  min-height: 76px;
-  padding: 14px;
+  min-height: 70px;
+  padding: 0 14px 14px;
   border-top: 1px solid var(--line);
 }
 

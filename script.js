@@ -6,18 +6,63 @@ const mediaVideos = document.querySelectorAll("video");
 const orbitNext = document.querySelector("#orbitNext");
 const orbitTrackNumber = document.querySelector("#orbitTrackNumber");
 const orbitTrackTitle = document.querySelector("#orbitTrackTitle");
+const orbitStatus = document.querySelector("#orbitStatus");
+const orbitAudio = document.querySelector("#orbitAudio");
 const orbitCards = document.querySelectorAll(".orbit-card");
 
 const orbitTracks = [
-  "Giữa một vạn người",
-  "Căn phòng khiêu vũ",
-  "Tình yêu có nghĩa là gì?",
-  "Nếu lúc đó",
-  "Thế giới không anh",
-  "Becoming"
+  {
+    title: "Grief Is The Price You Pay For Love",
+    preview: "https://p.scdn.co/mp3-preview/16cafdb2faf34475b589594c05c1a4f5329c9a21"
+  },
+  {
+    title: "Hiện Thực Phũ Phàng",
+    preview: "https://p.scdn.co/mp3-preview/5c9ed65744a6498f398a43e659e60a6a2f35317a"
+  },
+  {
+    title: "Cờ Người",
+    preview: "https://p.scdn.co/mp3-preview/9ff611e28a6c94ec96d53116498ac01a0a0c7c5d"
+  },
+  {
+    title: "Anh Là Thằng Tồi",
+    preview: "https://p.scdn.co/mp3-preview/145083fc2ee8d10dd44d57977028d8141497c583"
+  },
+  {
+    title: "Linh Cảm",
+    preview: "https://p.scdn.co/mp3-preview/aa99c7ff6db322df7432024f313e69885dfc9d7f"
+  },
+  {
+    title: "Ám Ảnh Về Anh",
+    preview: "https://p.scdn.co/mp3-preview/f4b00153d4cf9f0362e7004ca318b170770ce76f"
+  },
+  {
+    title: "Ước Anh Tan Nát Con Tim",
+    preview: "https://p.scdn.co/mp3-preview/72bdb480249dc1f3d46b1000a0271004c653c967"
+  },
+  {
+    title: "Điều Em Không Muốn",
+    preview: "https://p.scdn.co/mp3-preview/a9c1456ff486c8b93c7ca2f79ee114c6a9c4f504"
+  },
+  {
+    title: "Hãy Nói Anh Sai Rồi",
+    preview: "https://p.scdn.co/mp3-preview/f015325653857fbddb21c6c1bdd3e8a89e27df00"
+  },
+  {
+    title: "Khóc Blóck",
+    preview: "https://p.scdn.co/mp3-preview/f65b6db75882e9ae3da5f73dec93a4f032042678"
+  },
+  {
+    title: "Tâm Sự Với Đêm Một Mình",
+    preview: "https://p.scdn.co/mp3-preview/6a89dd04f742857516ce48a0b656cb31d3495083"
+  },
+  {
+    title: "Em Đau",
+    preview: "https://p.scdn.co/mp3-preview/b2de673fd6648d0ef9b835d769b8323f88af09b8"
+  }
 ];
 
 let orbitTrackIndex = 0;
+let orbitPreviewTimer;
 
 const geminiKey =
   window.DISSTOPIA_GEMINI_API_KEY ||
@@ -298,18 +343,39 @@ const observer = new IntersectionObserver(
 
 mediaVideos.forEach((video) => observer.observe(video));
 
-function updateOrbitTrack() {
+function updateOrbitTrack({ playPreview = false } = {}) {
+  const track = orbitTracks[orbitTrackIndex];
   orbitTrackNumber.textContent = String(orbitTrackIndex + 1).padStart(2, "0");
-  orbitTrackTitle.textContent = orbitTracks[orbitTrackIndex];
+  orbitTrackTitle.textContent = track.title;
 
   orbitCards.forEach((card, index) => {
     card.classList.toggle("is-active", index === orbitTrackIndex);
   });
+
+  if (!orbitAudio || !playPreview) return;
+
+  window.clearTimeout(orbitPreviewTimer);
+  orbitAudio.pause();
+  orbitAudio.currentTime = 0;
+  orbitAudio.src = track.preview;
+
+  orbitAudio.play()
+    .then(() => {
+      if (orbitStatus) orbitStatus.textContent = "Playing 8-second preview";
+      orbitPreviewTimer = window.setTimeout(() => {
+        orbitAudio.pause();
+        orbitAudio.currentTime = 0;
+        if (orbitStatus) orbitStatus.textContent = "Preview complete · open on Spotify";
+      }, 8000);
+    })
+    .catch(() => {
+      if (orbitStatus) orbitStatus.textContent = "Tap again to play preview";
+    });
 }
 
 if (orbitNext && orbitTrackNumber && orbitTrackTitle && orbitCards.length) {
   orbitNext.addEventListener("click", () => {
     orbitTrackIndex = (orbitTrackIndex + 1) % orbitTracks.length;
-    updateOrbitTrack();
+    updateOrbitTrack({ playPreview: true });
   });
 }

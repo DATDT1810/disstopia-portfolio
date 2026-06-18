@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DISSTOPIA Portfolio</title>
+    <link rel="icon" type="image/jpeg" href="assets/intro-01.jpg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -12,14 +13,14 @@
   <body>
     <header class="site-header">
       <a class="brand" href="#top" aria-label="DISSTOPIA home">
-        <span class="brand-mark">D</span>
+        <span class="brand-mark"><img src="assets/intro-01.jpg" alt="" /></span>
         <span>DISSTOPIA</span>
       </a>
       <nav class="nav-links" aria-label="Portfolio sections">
         <a href="#story">Project</a>
         <a href="#facebook">Facebook</a>
         <a href="#threads-tiktok">Threads + TikTok</a>
-        <a href="#chat">Chatbox</a>
+        <a href="#chat">Empathy Lab</a>
       </nav>
     </header>
 
@@ -37,7 +38,7 @@
           </p>
           <div class="hero-actions">
             <a class="button primary" href="#story">Khám phá dự án</a>
-            <a class="button ghost" href="#media-orbit">Media 360</a>
+            <a class="button ghost" href="#media-orbit">Listening Room</a>
           </div>
           <div class="hero-objectives">
             <p class="hero-objectives-label">Mục tiêu dự án</p>
@@ -73,35 +74,55 @@
       <section id="media-orbit" class="section media-orbit-section">
         <div class="section-heading compact">
           <div>
-            <p class="eyebrow">media 360</p>
-            <h2>DISSTOPIA Orbit</h2>
+            <p class="eyebrow">12 singles · spotify album</p>
+            <h2>Listening Room</h2>
           </div>
           <button class="button ghost orbit-next" type="button" id="orbitNext">Next track</button>
         </div>
-        <div class="orbit-stage" aria-label="DISSTOPIA 360 media preview">
+        <div class="orbit-stage" aria-label="Listening Room 360 degree album preview">
           <div class="orbit-core">
             <span id="orbitTrackNumber">01</span>
-            <strong id="orbitTrackTitle">Giữa một vạn người</strong>
-            <p>Preview visual 5-10s dạng orbit. Có thể gắn audio thật khi bạn có file nhạc cắt sẵn.</p>
+            <strong id="orbitTrackTitle">Grief Is The Price You Pay For Love</strong>
+            <p id="orbitTrackDescription">Mỗi lần chuyển bài, Listening Room phát một đoạn preview 8 giây. Nhấn vào bìa đang sáng để nghe trọn bài trên Spotify.</p>
+            <span class="orbit-status" id="orbitStatus">Ready to listen</span>
+            <audio id="orbitAudio" preload="none"></audio>
           </div>
           <div class="orbit-ring" id="orbitRing">
-            <a class="orbit-card is-active" href="https://www.facebook.com/share/p/1JDacbJbYg/" target="_blank" rel="noreferrer" style="--i: 0">
-              <img src="assets/fb-phase1-01.jpg" alt="DISSTOPIA orbit visual 1" />
+            <a class="orbit-card is-active" href="https://open.spotify.com/track/0No0rqyK0KIsesiwrnnhaf" target="_blank" rel="noreferrer" style="--i: 0">
+              <img src="assets/album-cover.jpg" alt="Grief Is The Price You Pay For Love" />
             </a>
-            <a class="orbit-card" href="https://www.facebook.com/share/p/1D2f6RpScY/" target="_blank" rel="noreferrer" style="--i: 1">
-              <img src="assets/fb-phase1-02.jpg" alt="DISSTOPIA orbit visual 2" />
+            <a class="orbit-card" href="https://open.spotify.com/track/28X9PA12ANiyb1qExK6AEG" target="_blank" rel="noreferrer" style="--i: 1">
+              <img src="assets/drive-02.jpg" alt="Hiện Thực Phũ Phàng" />
             </a>
-            <a class="orbit-card" href="https://www.facebook.com/share/p/191E7hpMUR/" target="_blank" rel="noreferrer" style="--i: 2">
-              <img src="assets/fb-phase1-03.jpg" alt="DISSTOPIA orbit visual 3" />
+            <a class="orbit-card" href="https://open.spotify.com/track/0IjFragIGhZPPhaF8HzJqo" target="_blank" rel="noreferrer" style="--i: 2">
+              <img src="assets/drive-03.jpg" alt="Cờ Người" />
             </a>
-            <a class="orbit-card" href="https://www.facebook.com/share/p/182mNc8kKy/" target="_blank" rel="noreferrer" style="--i: 3">
-              <img src="assets/fb-phase2-01.jpg" alt="DISSTOPIA orbit visual 4" />
+            <a class="orbit-card" href="https://open.spotify.com/track/6GPcbZOX4h9MWert6xWpYw" target="_blank" rel="noreferrer" style="--i: 3">
+              <img src="assets/drive-04.jpg" alt="Anh Là Thằng Tồi" />
             </a>
-            <a class="orbit-card" href="https://www.facebook.com/share/p/1EVtRhwBQD/" target="_blank" rel="noreferrer" style="--i: 4">
-              <img src="assets/fb-phase2-03.jpg" alt="DISSTOPIA orbit visual 5" />
+            <a class="orbit-card" href="https://open.spotify.com/track/2EnTkrLXgoGQ1S9atYZu2F" target="_blank" rel="noreferrer" style="--i: 4">
+              <img src="assets/drive-05.jpg" alt="Linh Cảm" />
             </a>
-            <a class="orbit-card" href="https://www.facebook.com/share/p/1ScvoHWczd/" target="_blank" rel="noreferrer" style="--i: 5">
-              <img src="assets/fb-phase3-01.jpg" alt="DISSTOPIA orbit visual 6" />
+            <a class="orbit-card" href="https://open.spotify.com/track/4mU4LOHUfY3Tv7V1F8pqsr" target="_blank" rel="noreferrer" style="--i: 5">
+              <img src="assets/drive-06.jpg" alt="Ám Ảnh Về Anh" />
+            </a>
+            <a class="orbit-card" href="https://open.spotify.com/track/7dDbzI8ZchvQbrTHrpOUAA" target="_blank" rel="noreferrer" style="--i: 6">
+              <img src="assets/drive-07.jpg" alt="Ước Anh Tan Nát Con Tim" />
+            </a>
+            <a class="orbit-card" href="https://open.spotify.com/track/1hhHm16FmHwdob8X95frcB" target="_blank" rel="noreferrer" style="--i: 7">
+              <img src="assets/drive-08.jpg" alt="Điều Em Không Muốn" />
+            </a>
+            <a class="orbit-card" href="https://open.spotify.com/track/1mZCfyJVxvkqkKd3xlOk2H" target="_blank" rel="noreferrer" style="--i: 8">
+              <img src="assets/drive-02.jpg" alt="Hãy Nói Anh Sai Rồi" />
+            </a>
+            <a class="orbit-card" href="https://open.spotify.com/track/7D7Atev6IsLXMvO7Z5MnL0" target="_blank" rel="noreferrer" style="--i: 9">
+              <img src="assets/drive-03.jpg" alt="Khóc Blóck" />
+            </a>
+            <a class="orbit-card" href="https://open.spotify.com/track/5JkQq7lTADn7UR4AzAQsnz" target="_blank" rel="noreferrer" style="--i: 10">
+              <img src="assets/drive-04.jpg" alt="Tâm Sự Với Đêm Một Mình" />
+            </a>
+            <a class="orbit-card" href="https://open.spotify.com/track/317Lh6QCAz9JpWbV3oxrCf" target="_blank" rel="noreferrer" style="--i: 11">
+              <img src="assets/drive-05.jpg" alt="Em Đau" />
             </a>
           </div>
         </div>
@@ -262,9 +283,12 @@
                 <img src="assets/fb-phase3-01.jpg" alt="Facebook phase 3 becoming post" />
                 <span>ACCESS KEY: PHASE 3_BECOMING</span>
               </a>
-              <div class="feature-note">
-                <span>final phase</span>
-                <p>Khoảnh khắc nhân vật thoát khỏi vòng lặp được lập trình và chọn trở thành phiên bản thật của chính mình.</p>
+              <div class="feature-note visual-note">
+                <img src="assets/drive-01.jpg" alt="" />
+                <div>
+                  <span>final phase</span>
+                  <p>Khoảnh khắc nhân vật thoát khỏi vòng lặp được lập trình và chọn trở thành phiên bản thật của chính mình.</p>
+                </div>
               </div>
             </div>
           </article>
@@ -279,9 +303,12 @@
                 <img src="assets/epilogue.png" alt="DISSTOPIA Epilogue" />
                 <span>EPILOGUE: HỒI KẾT</span>
               </a>
-              <div class="feature-note">
-                <span>closing post</span>
-                <p>Điểm kết của DISSTOPIA, gom lại cảm xúc sau hành trình Awakening - Collapse - Becoming.</p>
+              <div class="feature-note visual-note">
+                <img src="assets/drive-08.jpg" alt="" />
+                <div>
+                  <span>closing post</span>
+                  <p>Điểm kết của DISSTOPIA, gom lại cảm xúc sau hành trình Awakening - Collapse - Becoming.</p>
+                </div>
               </div>
             </div>
           </article>
@@ -316,16 +343,16 @@
               <h3>4 video nổi bật</h3>
               <div class="video-grid">
                 <a class="video-tile" href="https://vt.tiktok.com/ZSQbfa4JW/" target="_blank" rel="noreferrer">
-                  <img src="assets/tiktok-01.svg" alt="TikTok video 1" />
+                  <img src="assets/drive-02.jpg" alt="TikTok video 1" />
                 </a>
                 <a class="video-tile" href="https://vt.tiktok.com/ZSQbfBsgu/" target="_blank" rel="noreferrer">
-                  <img src="assets/tiktok-02.svg" alt="TikTok video 2" />
+                  <img src="assets/drive-03.jpg" alt="TikTok video 2" />
                 </a>
                 <a class="video-tile" href="https://vt.tiktok.com/ZSQbfDUth/" target="_blank" rel="noreferrer">
-                  <img src="assets/tiktok-03.svg" alt="TikTok video 3" />
+                  <img src="assets/drive-04.jpg" alt="TikTok video 3" />
                 </a>
                 <a class="video-tile" href="https://vt.tiktok.com/ZSQbfheYo/" target="_blank" rel="noreferrer">
-                  <img src="assets/tiktok-04.svg" alt="TikTok video 4" />
+                  <img src="assets/drive-05.jpg" alt="TikTok video 4" />
                 </a>
               </div>
             </div>
@@ -341,7 +368,7 @@
           <a class="button primary" href="https://www.facebook.com/share/v/184cfw7WEq/" target="_blank" rel="noreferrer">Xem FMV</a>
         </div>
         <a class="fmv-frame" href="https://www.facebook.com/share/v/184cfw7WEq/" target="_blank" rel="noreferrer" aria-label="Open DISSTOPIA FMV">
-          <img src="assets/fmv-poster.svg" alt="DISSTOPIA FMV poster" />
+          <img src="assets/fmv-thumbnail.jpg" alt="DISSTOPIA FMV poster" />
           <span class="play-icon">Play</span>
         </a>
       </section>

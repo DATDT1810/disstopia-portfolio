@@ -650,6 +650,10 @@ h3 {
 
 .phase-title h3 {
   margin: 10px 0 0;
+  max-width: 100%;
+  font-size: clamp(22px, 2.25vw, 30px);
+  line-height: 1.06;
+  overflow-wrap: anywhere;
 }
 
 .phase-title p {
